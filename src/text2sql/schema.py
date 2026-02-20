@@ -1,7 +1,5 @@
 """Schema serialization: Spider tables.json -> CREATE TABLE string."""
 
-from __future__ import annotations
-
 # Spider column_types -> SQLite type
 SPIDER_TYPE_TO_SQL: dict[str, str] = {
     "text": "TEXT",
@@ -23,14 +21,15 @@ def serialize_schema(schema: dict) -> str:
     foreign_keys. Output is semicolon-separated CREATE TABLE ... ; statements.
     """
     table_names_original = schema["table_names_original"]
-    column_names_original = schema["column_names_original"]  # list of [table_idx, col_name]
+    # list of [table_idx, col_name]
+    column_names_original = schema["column_names_original"]
     column_types = schema["column_types"]
     primary_keys = set(schema.get("primary_keys", []))
     foreign_keys = schema.get("foreign_keys", [])  # list of [cid, ref_cid]
 
     # column index -> (table_idx, column_name) for non-(−1, "*")
     col_index_to_table_col: list[tuple[int, str] | None] = []
-    for i, (tid, cname) in enumerate(column_names_original):
+    for _, (tid, cname) in enumerate(column_names_original):
         if tid == -1 and cname == "*":
             col_index_to_table_col.append(None)
         else:

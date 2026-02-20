@@ -8,7 +8,9 @@ import os
 from pathlib import Path
 
 # Use project-local cache for HuggingFace to avoid permission issues
-os.environ.setdefault("HF_HOME", str(Path(__file__).resolve().parent.parent / ".cache" / "huggingface"))
+os.environ.setdefault(
+    "HF_HOME", str(Path(__file__).resolve().parent.parent / ".cache" / "huggingface")
+)
 
 # Project root
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -33,6 +35,7 @@ def main() -> None:
     train = train_spider + train_others
 
     from transformers import AutoTokenizer
+
     tokenizer = AutoTokenizer.from_pretrained("t5-base")
 
     def input_string(example: dict) -> str:
@@ -64,7 +67,9 @@ def main() -> None:
         p50 = lens[int(0.50 * n)] if n else 0
         p95 = lens[int(0.95 * n)] if n else 0
         p99 = lens[int(0.99 * n)] if n else 0
-        print(f"{name}: n={n} min={lens[0]} max={lens[-1]} mean={mean:.1f} p50={p50} p95={p95} p99={p99}")
+        print(
+            f"{name}: n={n} min={lens[0]} max={lens[-1]} mean={mean:.1f} p50={p50} p95={p95} p99={p99}"
+        )
 
     print("Input format: question: {question} | schema: {CREATE TABLE ...}")
     print("Tokenizer: t5-base")

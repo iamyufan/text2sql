@@ -13,6 +13,7 @@ dependencies = [
     "tqdm>=4.66",
     "pyyaml>=6.0",
     "gdown>=5.2.1",
+    "python-dotenv>=1.0",
 ]
 [project.optional-dependencies]
 dev = ["pytest>=7.4", "gdown>=5.1"]
