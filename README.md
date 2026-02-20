@@ -1,91 +1,37 @@
-# SQL Query Generation from Natural Language
+# Text2SQL
 
-Author: [Yufan Zhang](https://yufanbruce.com)
+Text-to-SQL baseline: fine-tune T5 on the Spider dataset. Phase 1 covers data setup, schema serialization, and audits.
 
-## Introduction
+## Setup
 
-The project is about generating SQL queries from natural language questions. The dataset used in this project is the Flights dataset, which is a dataset of flights and airports. The dataset contains 25 tables, including airports, airlines, flights, etc. The goal of this project is to generate SQL queries from natural language questions in three approaches:
-
-1. Fine-tuned a pre-trained [T5 model](https://huggingface.co/docs/transformers/en/model_doc/t5) on the Flights dataset.
-2. Train a [T5 model](https://huggingface.co/docs/transformers/en/model_doc/t5) from scratch on the Flights dataset.
-3. Prompting & In-context Learning with [Gemma 1.1 2B](https://huggingface.co/google/gemma-1.1-2b-it) model.
-
-## Project Structure
-
-The project structure is as follows:
-
-```
-.
-├── README.md
-├── .env  # Environment file to store your HuggingFace Access Token
-├── checkpoints
-├── data
-│   ├── alignment.txt
-│   ├── dev.nl
-│   ├── dev.sql
-│   ├── flight_database.db
-│   ├── flight_database.schema
-│   ├── test.nl
-│   ├── train.nl
-│   └── train.sql
-├── dataset
-│   ├── __init__.py
-│   └── sql_dataset.py
-├── options
-│   ├── __init__.py
-│   ├── prompting_options.py
-│   └── t5_options.py
-├── prompting.py
-├── requirements.txt
-├── results
-│   ├── records
-│   └── queries
-├── t5.py
-└── utils
-    ├── __init__.py
-    ├── args.py
-    ├── data.py
-    ├── evaluation.py
-    ├── prompting_utils.py
-    └── t5_utils.py
-```
-
-## How to Run
-
-### Development Environment Setup
-
-To set up the development environment, you can run the following command:
+- **Python**: 3.10+
+- **Package manager**: [uv](https://docs.astral.sh/uv/)
 
 ```bash
-conda create -n text2sql python=3.10
-conda activate text2sql
-pip install -r requirements.txt
-````
-
-### Fine-tuned T5 Model
-
-To run the fine-tuned T5 model, you can run the following command:
-
-```bash
-python3 t5.py --finetune
+uv sync
 ```
 
-### Train T5 Model from Scratch
+Optional dev tools (tests, download script): already included via `dependency-groups.dev`; run `uv sync` to install.
 
-To train the T5 model from scratch, you can run the following command:
+## Environment
 
-```bash
-python3 t5.py
-```
+- **Spider data**: Default root is `spider_data/`. Override with `SPIDER_DATA_DIR`.
+- **Weights & Biases**:
+  - Online logging: set `WANDB_API_KEY` or run `wandb login`.
+  - Project name: `WANDB_PROJECT` (default: `text2sql-baseline`). Optional: `WANDB_ENTITY`.
+  - Local runs without an account: `WANDB_MODE=disabled`.
+  - Offline logging (sync later): `WANDB_MODE=offline`.
 
-### Prompting & In-context Learning with Gemma 1.1 2B Model
+## Phase 1 commands
 
-To run the prompting & in-context learning with Gemma 1.1 2B model, you can run the following command:
+1. **Download Spider** (if needed): run `scripts/download_spider.py` or download the [Spider dataset](https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view?usp=sharing) and extract into `spider_data/`.
+2. **Verify data**: `uv run python scripts/verify_spider_data.py`
+3. **Token length audit**: `uv run python scripts/audit_token_lengths.py`
+4. **Spot-check 20 examples**: `uv run python scripts/spotcheck_serialized.py`
 
-```bash
-python3 prompting.py
-```
+## Project layout
 
-## Acknowledgement
-
-This project is a part of the course project for the course CS 5740: Natural Language Processing (2024 Spring) at Cornell Tech. 
+- `src/text2sql/` – package (schema, config)
+- `scripts/` – download, verify, audit, spot-check
+- `spider_data/` – Spider JSON + `database/{db_id}/{db_id}.sqlite`
+- `tests/` – pytest (e.g. `test_schema.py`)
