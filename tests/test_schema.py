@@ -4,7 +4,7 @@ import json
 import pytest
 from pathlib import Path
 
-from text2sql.schema import (
+from text2sql.data import (
     serialize_schema,
     get_schema_for_db,
     serialize_schema_for_db,
@@ -13,7 +13,11 @@ from text2sql.schema import (
 
 
 def _tables_path() -> Path:
-    return Path(__file__).resolve().parent.parent / "spider_data" / "tables.json"
+    root = Path(__file__).resolve().parent.parent
+    data_raw = root / "data" / "raw" / "tables.json"
+    if data_raw.exists():
+        return data_raw
+    return root / "spider_data" / "tables.json"
 
 
 @pytest.fixture

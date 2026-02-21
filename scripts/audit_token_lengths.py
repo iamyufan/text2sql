@@ -15,11 +15,9 @@ os.environ.setdefault(
 # Project root
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-SPIDER_DATA_DIR = Path(
-    __import__("os").environ.get("SPIDER_DATA_DIR", str(PROJECT_ROOT / "spider_data"))
-).resolve()
 
-from text2sql.schema import get_schema_for_db, serialize_schema
+from text2sql.config import data_raw_dir
+from text2sql.data import get_schema_for_db, serialize_schema
 
 
 def load_json(path: Path) -> list:
@@ -28,10 +26,11 @@ def load_json(path: Path) -> list:
 
 
 def main() -> None:
-    tables_list = load_json(SPIDER_DATA_DIR / "tables.json")
-    train_spider = load_json(SPIDER_DATA_DIR / "train_spider.json")
-    train_others = load_json(SPIDER_DATA_DIR / "train_others.json")
-    dev = load_json(SPIDER_DATA_DIR / "dev.json")
+    raw_dir = data_raw_dir()
+    tables_list = load_json(raw_dir / "tables.json")
+    train_spider = load_json(raw_dir / "train_spider.json")
+    train_others = load_json(raw_dir / "train_others.json")
+    dev = load_json(raw_dir / "dev.json")
     train = train_spider + train_others
 
     from transformers import AutoTokenizer

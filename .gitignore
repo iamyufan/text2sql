@@ -8,4 +8,10 @@ __pycache__/
 spotcheck_20.txt
 spider.zip
 spider_data/
+data/processed/
+outputs/
 .pytest_cache/
+
+data/
+
+wandb/

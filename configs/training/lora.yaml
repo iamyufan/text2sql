@@ -1,0 +1,6 @@
+# Extends default; override or add LoRA-specific
+use_lora: true
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+lora_target_modules: ["q", "v"]

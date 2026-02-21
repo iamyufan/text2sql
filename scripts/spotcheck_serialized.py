@@ -7,20 +7,19 @@ from pathlib import Path
 # Project root
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-SPIDER_DATA_DIR = Path(
-    __import__("os").environ.get("SPIDER_DATA_DIR", str(PROJECT_ROOT / "spider_data"))
-).resolve()
 
-from text2sql.schema import get_schema_for_db, serialize_schema
+from text2sql.config import data_raw_dir
+from text2sql.data import get_schema_for_db, serialize_schema
 
 SEED = 42
 N_SPOTCHECK = 20
 
 
 def main() -> None:
-    with open(SPIDER_DATA_DIR / "dev.json") as f:
+    raw_dir = data_raw_dir()
+    with open(raw_dir / "dev.json") as f:
         dev = json.load(f)
-    with open(SPIDER_DATA_DIR / "tables.json") as f:
+    with open(raw_dir / "tables.json") as f:
         tables_list = json.load(f)
 
     random.seed(SEED)

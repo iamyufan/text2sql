@@ -1,0 +1,47 @@
+[
+  {
+    "question": "How many singers do we have?",
+    "gold_sql": "SELECT count(*) FROM singer",
+    "pred_sql": "SELECT * FROM stadium",
+    "db_id": "concert_singer",
+    "difficulty": "easy",
+    "is_valid_sql": true,
+    "error_type": "wrong_table"
+  },
+  {
+    "question": "What is the total number of singers?",
+    "gold_sql": "SELECT count(*) FROM singer",
+    "pred_sql": "SELECT * FROM stadium",
+    "db_id": "concert_singer",
+    "difficulty": "easy",
+    "is_valid_sql": true,
+    "error_type": "wrong_table"
+  },
+  {
+    "question": "Show name, country, age for all singers ordered by age from the oldest to the youngest.",
+    "gold_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+    "pred_sql": "SELECT * FROM stadium",
+    "db_id": "concert_singer",
+    "difficulty": "medium",
+    "is_valid_sql": true,
+    "error_type": "wrong_table"
+  },
+  {
+    "question": "What are the names, countries, and ages for every singer in descending order of age?",
+    "gold_sql": "SELECT name ,  country ,  age FROM singer ORDER BY age DESC",
+    "pred_sql": "SELECT * FROM stadium",
+    "db_id": "concert_singer",
+    "difficulty": "medium",
+    "is_valid_sql": true,
+    "error_type": "wrong_table"
+  },
+  {
+    "question": "What is the average, minimum, and maximum age of all singers from France?",
+    "gold_sql": "SELECT avg(age) ,  min(age) ,  max(age) FROM singer WHERE country  =  'France'",
+    "pred_sql": "SELECT * FROM stadium",
+    "db_id": "concert_singer",
+    "difficulty": "medium",
+    "is_valid_sql": true,
+    "error_type": "wrong_table"
+  }
+]
