@@ -12,6 +12,6 @@ data/processed/
 outputs/
 .pytest_cache/
 
-data/
+/data
 
-wandb/
+/wandb
