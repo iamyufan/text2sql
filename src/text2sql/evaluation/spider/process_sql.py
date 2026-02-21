@@ -28,6 +28,14 @@ import json
 import sqlite3
 from nltk import word_tokenize
 
+
+def _sqlite_connect(db):
+    """Open SQLite connection with UTF-8-safe text decoding for Spider DBs with non-UTF-8 data."""
+    conn = sqlite3.connect(db)
+    conn.text_factory = lambda b: b.decode("utf-8", errors="replace") if isinstance(b, bytes) else b
+    return conn
+
+
 CLAUSE_KEYWORDS = ('select', 'from', 'where', 'group', 'order', 'limit', 'intersect', 'union', 'except')
 JOIN_KEYWORDS = ('join', 'on', 'as')
 
@@ -85,7 +93,7 @@ def get_schema(db):
     """
 
     schema = {}
-    conn = sqlite3.connect(db)
+    conn = _sqlite_connect(db)
     cursor = conn.cursor()
 
     # fetch table names

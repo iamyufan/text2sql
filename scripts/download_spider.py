@@ -1,4 +1,4 @@
-"""Download Spider 1.0 dataset and extract so spider_data/database/{db_id}/{db_id}.sqlite exist.
+"""Download Spider 1.0 dataset and extract so data/raw/database/{db_id}/{db_id}.sqlite exist.
 
 Official zip: https://drive.google.com/file/d/1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J/view?usp=sharing
 Run from project root. Uses gdown if available; otherwise prints manual instructions.
@@ -13,7 +13,7 @@ from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 SPIDER_DATA_DIR = Path(
-    os.environ.get("SPIDER_DATA_DIR", str(PROJECT_ROOT / "spider_data"))
+    os.environ.get("SPIDER_DATA_DIR", str(PROJECT_ROOT / "data" / "raw"))
 ).resolve()
 
 GDRIVE_ID = "1403EGqzIDoHMdQF4c9Bkyl7dZLZ5Wt6J"
@@ -54,23 +54,21 @@ def main() -> None:
     else:
         print(f"Using existing zip: {zip_path}")
 
-    print("Extracting...")
+    print("Extracting to ./data/raw ...")
     with zipfile.ZipFile(zip_path, "r") as zf:
-        # Spider zip typically has top-level train_spider.json, database/, etc.
-        for name in zf.namelist():
-            if name.startswith("database/") or name in (
-                "train_spider.json",
-                "train_others.json",
-                "dev.json",
-                "tables.json",
-                "README.txt",
-            ):
-                dest = SPIDER_DATA_DIR / name
-                if name.endswith("/"):
-                    dest.mkdir(parents=True, exist_ok=True)
-                else:
-                    dest.parent.mkdir(parents=True, exist_ok=True)
-                    dest.write_bytes(zf.read(name))
+        names = zf.namelist()
+        # Strip top-level folder (e.g. spider_data/) so files go into data/raw/ directly
+        prefix = (names[0].split("/")[0] + "/") if names and "/" in names[0] else ""
+        for name in names:
+            if not name.startswith(prefix):
+                continue
+            rel = name[len(prefix) :]
+            dest = SPIDER_DATA_DIR / rel
+            if name.endswith("/"):
+                dest.mkdir(parents=True, exist_ok=True)
+            else:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                dest.write_bytes(zf.read(name))
     print("Done. Run: uv run python scripts/verify_spider_data.py")
 
 

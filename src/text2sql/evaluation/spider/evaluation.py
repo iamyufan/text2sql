@@ -28,6 +28,13 @@ import argparse
 
 from .process_sql import tokenize, get_schema, get_tables_with_alias, Schema, get_sql
 
+
+def _sqlite_connect(db):
+    """Open SQLite connection with UTF-8-safe text decoding for Spider DBs with non-UTF-8 data."""
+    conn = sqlite3.connect(db)
+    conn.text_factory = lambda b: b.decode("utf-8", errors="replace") if isinstance(b, bytes) else b
+    return conn
+
 # Flag to disable value evaluation
 DISABLE_VALUE = True
 # Flag to disable distinct in select evaluation
@@ -432,7 +439,7 @@ class Evaluator:
 
 
 def isValidSQL(sql, db):
-    conn = sqlite3.connect(db)
+    conn = _sqlite_connect(db)
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
@@ -617,7 +624,7 @@ def eval_exec_match(db, p_str, g_str, pred, gold):
     return 1 if the values between prediction and gold are matching
     in the corresponding index. Currently not support multiple col_unit(pairs).
     """
-    conn = sqlite3.connect(db)
+    conn = _sqlite_connect(db)
     cursor = conn.cursor()
     try:
         cursor.execute(p_str)

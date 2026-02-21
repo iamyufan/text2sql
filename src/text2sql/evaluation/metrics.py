@@ -6,6 +6,13 @@ from pathlib import Path
 import sqlglot
 
 
+def _sqlite_connect(db_path):
+    """Open SQLite connection with UTF-8-safe text decoding for DBs with non-UTF-8 data."""
+    conn = sqlite3.connect(str(db_path))
+    conn.text_factory = lambda b: b.decode("utf-8", errors="replace") if isinstance(b, bytes) else b
+    return conn
+
+
 def is_valid_sql(sql: str) -> bool:
     """Return True if the string parses as valid SQL (sqlglot), False otherwise."""
     if not sql or not sql.strip():
@@ -26,7 +33,7 @@ def execute_query(db_path: Path, sql: str) -> tuple[bool, list | None]:
     if not db_path.exists():
         return False, None
     try:
-        conn = sqlite3.connect(str(db_path))
+        conn = _sqlite_connect(db_path)
         cursor = conn.cursor()
         cursor.execute(sql)
         rows = cursor.fetchall()

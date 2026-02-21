@@ -7,6 +7,7 @@ Usage:
 """
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -91,7 +92,11 @@ def main() -> None:
     config["smoke"] = args.smoke
 
     model_name = config.get("model_name", "t5-base")
-    run_name = args.run_name or model_name.replace("/", "_")
+    if args.run_name is not None:
+        run_name = args.run_name
+    else:
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        run_name = f"{model_name.replace('/', '_')}_{timestamp}"
     output_dir = args.output_dir or (
         PROJECT_ROOT / "outputs" / "checkpoints" / run_name
     )

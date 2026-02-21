@@ -45,6 +45,14 @@ def make_compute_metrics(
             return {}
         if isinstance(pred_ids, tuple):
             pred_ids = pred_ids[0]
+        # Ensure CPU list of Python ints in vocab range to avoid OverflowError in tokenizer
+        if hasattr(pred_ids, "cpu"):
+            pred_ids = pred_ids.cpu().numpy()
+        pred_ids = pred_ids.tolist()
+        vocab_size = tokenizer.vocab_size
+        pred_ids = [
+            [min(max(int(t), 0), vocab_size - 1) for t in seq] for seq in pred_ids
+        ]
         predictions = tokenizer.batch_decode(
             pred_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )
@@ -94,6 +102,9 @@ def build_trainer(
         model.config.decoder_start_token_id = tokenizer.pad_token_id
     if getattr(model.config, "pad_token_id", None) is None:
         model.config.pad_token_id = tokenizer.pad_token_id
+    # Reduce GPU memory so full runs fit on ~22GB
+    if torch.cuda.is_available() and not config.get("no_cuda", False):
+        model.gradient_checkpointing_enable()
 
     use_lora = config.get("use_lora", False)
     if use_lora:
@@ -149,7 +160,7 @@ def build_trainer(
         greater_is_better=True,
         logging_steps=50,
         fp16=use_fp16,
-        no_cuda=no_cuda,
+        gradient_checkpointing=True,
         report_to="wandb",
         remove_unused_columns=False,
     )
@@ -159,9 +170,10 @@ def build_trainer(
         )
 
     eval_examples = _examples_from_eval_dataset(eval_dataset)
-    # Remove non-tensor columns so DataCollator does not try to pad them
-    train_dataset = train_dataset.remove_columns(["question", "query", "db_id"])
-    eval_dataset = eval_dataset.remove_columns(["question", "query", "db_id"])
+    # Remove non-tensor columns so DataCollator and model.generate() don't see them
+    cols_to_remove = ["question", "query", "db_id", "id"]
+    train_dataset = train_dataset.remove_columns([c for c in cols_to_remove if c in train_dataset.column_names])
+    eval_dataset = eval_dataset.remove_columns([c for c in cols_to_remove if c in eval_dataset.column_names])
 
     compute_metrics_fn = make_compute_metrics(
         eval_examples=eval_examples,

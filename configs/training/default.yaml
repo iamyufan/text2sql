@@ -1,12 +1,13 @@
 epochs: 10
-batch_size: 16
+# Reduced for ~22GB GPU; use gradient_accumulation_steps to keep effective batch size
+batch_size: 8
 max_input_length: 1024
 max_target_length: 256
 learning_rate: 5.0e-4
 warmup_ratio: 0.05
 weight_decay: 0.01
 lr_scheduler_type: linear
-gradient_accumulation_steps: 2
+gradient_accumulation_steps: 8
 use_lora: false
 # device: "cpu"   # uncomment to force CPU; omit or use "cuda" for GPU (or set CUDA_VISIBLE_DEVICES)
 # no_cuda: false  # or set true to force CPU
